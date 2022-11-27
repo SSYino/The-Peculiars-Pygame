@@ -12,3 +12,7 @@ class Scene(ABC):
     @abstractmethod
     def start(self, p, n):
         pass
+
+    @abstractmethod
+    def stop(self):
+        self.run = False
