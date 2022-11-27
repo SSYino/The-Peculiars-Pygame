@@ -35,7 +35,7 @@ class GetUsernameScreen(Scene):
 
         textinput = pygame_textinput.TextInputVisualizer()
 
-        while run:
+        while self.run:
             p.clock.tick(60)
             p.win.fill((128, 128, 128))
             font = p.py.font.SysFont("comicsans", 60)
