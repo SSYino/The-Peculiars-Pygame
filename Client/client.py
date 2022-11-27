@@ -1,5 +1,4 @@
 print("+ = "+__name__)
-from multiprocessing import freeze_support
 import sys
 import threading
 import network
@@ -14,37 +13,38 @@ from scenes.scene_manager import SceneManager
 # from communication import communication
 
 
+
 def main():
     p = load_pygame.Load()
     scene_manager = SceneManager()
     
     # conn = obj_connect.Load()
     # objs = obj_groups.Load(data, p, conn)
-    scenes_thread = threading.Thread(target=scene_manager.start, args=(p, net))
-    scenes_thread.start()
 
+    # scenes_thread = threading.Thread(target=scene_manager.start, args=(p, net))
+    # scenes_thread.start()
 
-    while True:
-        # communication(conn, net, app)
-        # switch(objs, conn)
-        # events(p, objs, conn.FRAME)
+    scene_manager.start(p, net)
 
-        # action(p, objs, data, conn, net)
-        action.receive(p, net)
+    # while True:
+    #     # communication(conn, net, app)
+    #     # switch(objs, conn)
+    #     # events(p, objs, conn.FRAME)
 
-        # items(p, objs, conn)
+    #     # action(p, objs, data, conn, net)
+    #     action.receive(p, net)
 
-        if not p.RUN:
-            net.end()
-            sys.exit()
+    #     # items(p, objs, conn)
+
+    #     if not p.RUN:
+    #         net.end()
+    #         sys.exit()
 
 
 
 print("- = "+__name__)
 
 if __name__ == '__main__':
-    freeze_support()
-
     net = network.Load()
 
     x = threading.Thread(target=net.start, args=())
