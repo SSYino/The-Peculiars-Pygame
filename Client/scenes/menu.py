@@ -60,3 +60,6 @@ class MenuScreen(Scene):
                     elif join_button.click(event.pos):
                         print("join game")
                         return "getUsername"
+
+    def stop(self):
+        return super().stop()
