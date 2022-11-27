@@ -70,8 +70,11 @@ class GetUsernameScreen(Scene):
                         #     print("Could not send 'set_display_name'")
                         #     break
 
-                        run = False
-                        return "gameroom"
+                        self.run = False
+                        return "game"
                         # create_game_screen()
 
             p.py.display.update()
+
+    def stop(self):
+        return super().stop()
