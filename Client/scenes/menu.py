@@ -5,7 +5,7 @@ class MenuScreen(Scene):
     def get_name(self):
         return super().get_name()
 
-    def start(self, p, n):
+    def start(self, p, n, m):
         self.run = True
 
         class Button:
@@ -51,8 +51,8 @@ class MenuScreen(Scene):
 
             for event in p.py.event.get():
                 if event.type == p.py.QUIT:
+                    self.run = False
                     p.py.quit()
-                    exit()
                 if event.type == p.py.MOUSEBUTTONDOWN:
                     if start_button.click(event.pos):
                         print("start game")

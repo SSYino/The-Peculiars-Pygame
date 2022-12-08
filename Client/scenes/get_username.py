@@ -5,7 +5,7 @@ class GetUsernameScreen(Scene):
     def get_name(self):
         return super().get_name()
 
-    def start(self, p, n):
+    def start(self, p, n, m):
         self.run = True
 
         class Button:
@@ -50,19 +50,21 @@ class GetUsernameScreen(Scene):
             confirm_button = Button("Confirm", 700, 400, "Gray")
             confirm_button.draw(p.win)
 
+            p.py.display.update()
+
             for event in events:
                 # print(event)
                 if event.type == p.py.QUIT:
+                    self.run = False
                     p.py.quit()
-                    exit()
                 if event.type == p.py.MOUSEBUTTONDOWN:
                     if confirm_button.click(event.pos):
                         print("confirmed display name")
 
                         # Update user display name in Player instance
                         # player["display_name"] = textinput.value
-                        data = {"command": "set_display_name", "data": textinput.value}
-                        n.q_SEND.put(data)
+                        data = {"command": "setDisplayName", "data": {"player_id": m.getState("player")["id"], "value": textinput.value}}
+                        n.send_data(data)
 
                         # reply = n.send(data)
                         # if not reply:
@@ -74,7 +76,6 @@ class GetUsernameScreen(Scene):
                         return "game"
                         # create_game_screen()
 
-            p.py.display.update()
 
     def stop(self):
         return super().stop()
