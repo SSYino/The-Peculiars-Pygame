@@ -1,11 +1,19 @@
-def manager(data):
+def manager(data, setState):
     command = data["command"]
 
+    def Response(isSuccess, command, data):
+        if isSuccess:
+            return {"command": command, "data": data}
+        else:
+            return {"command": "Unsuccessful", "data": command}
+
     match command:
-        case "set_display_name":
-            print("Display name", data["data"])
-            return {"command": "success", "data": "set_display_name"}
+        case "setDisplayName":
+            [isSuccess, reply] = setState(data=data)
+            return Response(isSuccess, command, reply)
+        case "createGame":
+            [isSuccess, reply] = setState(data=data)
+            return Response(isSuccess, command, reply)
         case _:
             print("Invalid command received in commandsManager")
             return {"command": "Error", "data": "Invalid command"}
-
