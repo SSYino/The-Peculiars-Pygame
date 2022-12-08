@@ -10,7 +10,7 @@ class Scene(ABC):
         return self.name
 
     @abstractmethod
-    def start(self, p, n):
+    def start(self, p, n, m):
         pass
 
     @abstractmethod
