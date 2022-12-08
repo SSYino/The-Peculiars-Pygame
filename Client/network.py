@@ -63,5 +63,8 @@ class Load:
         except Exception as e:
             print(e)
 
+    def send_data(self, data):
+        self.q_SEND.put(data)
+
 if __name__ != "__main__":
     pass
