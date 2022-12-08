@@ -17,16 +17,25 @@ class Server:
     # self.keypass = KeyPass()
     # self.database = Database()
     # self.database.create()
+    def __init__(self) -> None:
+        self.state = {"id_count": 0, "game_id_count": 0}
 
     def player_thread(self, conn, addr):
-        # player = None
+        id = self.get_state("id_count")
+        player = Player(str(id))
+
+        data = {"command": "createPlayer", "data": player.get_data()}
+        self.set_state(data=data)
+        self.data_send(conn, data)
+        self.set_state("id_count", id + 1)
+
         run = True
         while run:
             try:
                 data = self.data_get(conn, 1024)
                 print(data)
 
-                reply = manager(data)
+                reply = manager(data, self.set_state)
                 # if player != None:
                 #     self.keypass.start(self, data, conn, player)
                 # else:
@@ -37,10 +46,10 @@ class Server:
                 self.data_send(conn, reply)
 
             except Exception as e:
-                print(e)
+                print("[PLAYER_THREAD]", e)
                 run = False
 
-        # player = None
+        self.set_state(data={"command": "deletePlayer", "data": {"id": str(id)}})
         conn.close()
 
     def connection_thread(self):
@@ -48,7 +57,7 @@ class Server:
             try:
                 server.bind((SERVER, PORT))
             except socket.error as e:
-                print(e)
+                print("[SOCKET]", e)
 
             print("[SERVER ON]")
 
@@ -76,6 +85,100 @@ class Server:
 
     def data_send(self, conn, msg):
         conn.sendall(json.dumps(msg).encode())
+
+    def get_state(self, key=None):
+        if key:
+            return self.state[key]
+
+        return self.state
+
+    def set_state(self, key=None, value=None, data=None):
+        state = self.get_state()
+        if key and value:
+            state[key] = value
+            print("state", self.get_state())
+            return True
+        elif data:
+            [isSuccess, reply] = self.data_manager(state, data)
+            print("state", self.get_state())
+            return [isSuccess, reply]
+        else:
+            print("State was not updated")
+            return False
+
+    def data_manager(self, state, data):
+        match data["command"]:
+            case "createPlayer":
+                try:
+                    if "players" not in state:
+                        state["players"] = [data["data"]]
+                    else:
+                        state["players"].append(data["data"])
+                except:
+                    print("could not create player")
+                    return [False, None]
+                return [True, None]
+
+            case "deletePlayer":
+                try:
+                    player_id = data["data"]["id"]
+                    players = state["players"]
+                    games = state["games"]
+                    for i, player in enumerate(players):
+                        if player["id"] == player_id:
+                            for i, game in enumerate(games):
+                                if game.id == player["game_id"]:
+                                    games.pop(i)
+                            players.pop(i)
+                            break
+                except:
+                    print("could not delete player")
+                    return [False, None]
+                return [True, None]
+
+            case "setDisplayName":
+                try:
+                    player_id = data["data"]["player_id"]
+                    display_name = data["data"]["value"]
+                    for player in state["players"]:
+                        if player["id"] == player_id:
+                            player["display_name"] = display_name
+                            break
+                    
+                except:
+                    print("could not set display name")
+                    return [False, None]
+                return [True, display_name]
+
+            case "createGame":
+                try:
+                    game_id = state["game_id_count"]
+                    new_game = Game(str(game_id))
+                    self.set_state("game_id_count", game_id + 1)
+
+                    new_player = None
+                    player_id = data["data"]["player_id"]
+                    for player in state["players"]:
+                        if player["id"] == player_id:
+                            player["game_id"] = str(game_id)
+                            new_player = player
+                            new_game.add_player(new_player)
+                            break
+
+                    if "games" not in state:
+                        state["games"] = [new_game]
+                    else:
+                        state["games"].append(new_game)
+
+                    reply = {"player": new_player, "game": new_game.get_data()}
+                except:
+                    print("could not creat game")
+                    return [False, None]
+                return [True, reply]
+
+            case _:
+                print("Unknown command")
+                return [False, None]
 
     # def on_login(self, player):
     #     if player:
