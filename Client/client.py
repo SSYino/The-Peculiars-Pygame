@@ -1,4 +1,4 @@
-print("+ = "+__name__)
+# print("+ = "+__name__)
 import sys
 import threading
 import network
@@ -14,8 +14,8 @@ from config.scene_manager import SceneManager
 
 
 
-def main(p, net):
-    scene_manager = SceneManager(p, net)
+def main(p, net, data_manager):
+    scene_manager = SceneManager(p, net, data_manager)
     scene_manager.start()
 
     # conn = obj_connect.Load()
@@ -23,7 +23,6 @@ def main(p, net):
 
     # scenes_thread = threading.Thread(target=scene_manager.start, args=(p, net))
     # scenes_thread.start()
-
 
     # while True:
     #     # communication(conn, net, app)
@@ -37,11 +36,12 @@ def main(p, net):
         
     #     if not p.RUN:
     #         net.end()
-    #         sys.exit()
+    #         sys.exit()\
+    net.end()
+    data_manager.end()
 
 
-
-print("- = "+__name__)
+# print("- = "+__name__)
 
 if __name__ == '__main__':
     p = load_pygame.Load()
@@ -56,6 +56,6 @@ if __name__ == '__main__':
     x.start()
     y.start()
 
-    main(p, net)
+    main(p, net, data_manager)
 
 
