@@ -65,10 +65,10 @@ class MenuScreen(Scene):
                 if event.type == p.py.MOUSEBUTTONDOWN:
                     if start_button.click(event.pos):
                         print("start game")
-                        return "getUsername"
+                        return {"next_scene": "getUsername", "pending_scene": "createGame"}
                     elif join_button.click(event.pos):
                         print("join game")
-                        return "getUsername"
+                        return {"next_scene": "getUsername", "pending_scene": "joinGame"}
 
     def stop(self):
         return super().stop()

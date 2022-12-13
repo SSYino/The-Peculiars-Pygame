@@ -73,7 +73,7 @@ class GetUsernameScreen(Scene):
                         #     break
 
                         self.run = False
-                        return "game"
+                        return {"next_scene": "menu"}
                         # create_game_screen()
 
 
