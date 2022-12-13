@@ -18,15 +18,16 @@ class Server:
     # self.database = Database()
     # self.database.create()
     def __init__(self) -> None:
-        self.state = {"id_count": 0, "game_id_count": 0}
+        self.state = {"id_count": 0, "game_id_count": 0, "players": [], "games": []}
 
     def player_thread(self, conn, addr):
         id = self.get_state("id_count")
-        player = Player(str(id))
+        player = Player(str(id), conn)
 
-        data = {"command": "createPlayer", "data": player.get_data()}
-        self.set_state(data=data)
-        self.data_send(conn, data)
+        data_server = {"command": "createPlayer", "data": player}
+        data_client = {"command": "createPlayer", "data": player.get_data()}
+        self.set_state(data=data_server)
+        self.data_send(conn, data_client)
         self.set_state("id_count", id + 1)
 
         run = True
@@ -98,13 +99,10 @@ class Server:
             state[key] = value
             print("state", self.get_state())
             return True
-        elif data:
+        else:
             [isSuccess, reply] = self.data_manager(state, data)
             print("state", self.get_state())
             return [isSuccess, reply]
-        else:
-            print("State was not updated")
-            return False
 
     def data_manager(self, state, data):
         match data["command"]:
@@ -114,10 +112,10 @@ class Server:
                         state["players"] = [data["data"]]
                     else:
                         state["players"].append(data["data"])
+                    return [True, None]
                 except:
                     print("could not create player")
                     return [False, None]
-                return [True, None]
 
             case "deletePlayer":
                 try:
@@ -125,30 +123,31 @@ class Server:
                     players = state["players"]
                     games = state["games"]
                     for i, player in enumerate(players):
-                        if player["id"] == player_id:
-                            for i, game in enumerate(games):
-                                if game.id == player["game_id"]:
-                                    games.pop(i)
+                        if player.id == player_id:
+                            for j, game in enumerate(games):
+                                if game.id == player.game_id:
+                                    games.pop(j)
+                                    break
                             players.pop(i)
                             break
+                    return [True, None]
                 except:
                     print("could not delete player")
                     return [False, None]
-                return [True, None]
 
             case "setDisplayName":
                 try:
                     player_id = data["data"]["player_id"]
                     display_name = data["data"]["value"]
                     for player in state["players"]:
-                        if player["id"] == player_id:
-                            player["display_name"] = display_name
+                        if player.id == player_id:
+                            player.set_display_name(display_name)
                             break
                     
+                    return [True, display_name]
                 except:
                     print("could not set display name")
                     return [False, None]
-                return [True, display_name]
 
             case "createGame":
                 try:
@@ -159,8 +158,8 @@ class Server:
                     new_player = None
                     player_id = data["data"]["player_id"]
                     for player in state["players"]:
-                        if player["id"] == player_id:
-                            player["game_id"] = str(game_id)
+                        if player.id == player_id:
+                            player.game_id = str(game_id)
                             new_player = player
                             new_game.add_player(new_player)
                             break
@@ -170,11 +169,64 @@ class Server:
                     else:
                         state["games"].append(new_game)
 
-                    reply = {"player": new_player, "game": new_game.get_data()}
+                    reply = {"player": new_player.get_data(), "game": new_game.get_data()}
+                    return [True, reply]
                 except:
                     print("could not creat game")
                     return [False, None]
-                return [True, reply]
+
+            case "joinGame":
+                try:
+                    game_id = data["data"]["game_id"]
+                    player_id = data["data"]["player_id"]
+                    game = None
+                    player = None
+
+                    for g in state["games"]:
+                        if g.get_game_id() == game_id:
+                            game = g
+                            break
+                    for p in state["players"]:
+                        if p.id == player_id:
+                            player = p
+                            break
+
+                    if game and player:
+                        player.game_id = game_id
+                        players = game.add_player(player)
+                        game_data = {"command": "gameData", "data": game.get_data()}
+                        for p in players:
+                            if p.id != player.id:
+                                self.data_send(p.get_socket(), game_data)
+                    else:
+                        if not game:
+                            print("could not find game")
+                        if not player:
+                            print("could not find player")
+                        raise Exception()
+
+                    reply = {"player": player.get_data(), "game": game.get_data()}
+                    return [True, reply]
+                except:
+                    print("could not join game")
+                    return [False, None]
+
+            case "getActiveGames":
+                try:
+                    games = state["games"]
+                    games_count = len(games)
+                    games_data = []
+                    for game in games:
+                        game_leader = game.get_game_leader()
+                        game_leader_name = game_leader.get_display_name()
+                        game_id = game.get_game_id()
+                        games_data.append({"game_id": game_id, "game_leader": game_leader_name})
+
+                    reply = {"games_data": games_data, "count": games_count}
+                    return [True, reply]
+                except:
+                    print("could not get active games")
+                    return [False, None]
 
             case _:
                 print("Unknown command")
