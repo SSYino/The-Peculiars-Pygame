@@ -8,14 +8,10 @@ class GameScreen(Scene):
     def start(self, p, n, m):
         self.run = True
         
-        data = {"command": "createGame", "data": {"player_id": m.getState("player")["id"]}}
-        n.send_data(data)
-
-
         class Player(p.py.sprite.Sprite):
             def __init__(self, player_data, player_count) -> None:
                 super().__init__()
-                self.image = p.py.image.load("assets/images/Logo.png")
+                self.image = p.py.image.load("assets/images/Logo.png").convert_alpha()
                 self.image = p.py.transform.scale(self.image, (100, 100))
                 self.rect = self.image.get_rect()
                 self.player_data = player_data
@@ -30,26 +26,43 @@ class GameScreen(Scene):
 
             try:
                 game_state = m.getState("current_game")
-                new_players = game_state["new_players"]
-                old_players = game_state["old_players"]
-                if new_players:
-                    for player_data in new_players:
-                        player_count = game_state["player_count"]
-                        player_count += 1
-                        new_player  = Player(player_data, player_count)
-                        player_group.add(new_player)
+                players = game_state["players"]
+                player_count = len(players)
+                for count, player_data in enumerate(players):
+                    new_player = Player(player_data, count + 1)
+                    player_group.add(new_player)
 
-                        old_players.append(new_players.pop(0))
+                # new_players = game_state["new_players"]
+                # old_players = game_state["old_players"]
+                # if new_players:
+                #     for player_data in new_players:
+                #         player_count = game_state["player_count"]
+                #         player_count += 1
+                #         new_player  = Player(player_data, player_count)
+                #         player_group.add(new_player)
 
-                print("new", new_players, "old", old_players, "player count", player_count)
+                #         old_players.append(new_players.pop(0))
+
+                player_group.draw(p.win)
+                # print("new", new_players, "old", old_players, "player count", player_count)
+                print("players", players, "player count", player_count)
             except Exception as e:
                 # print(f"error {e}")
                 print("no players received yet")
+                font = p.py.font.SysFont("comicsans", 60)
+                text = font.render("No game data", 1, (255, 255, 255))
+                text_rect = text.get_rect()
 
-            player_group.draw(p.win)
+                screen_info = p.py.display.Info()
+                current_w, current_h = screen_info.current_w, screen_info.current_h
+                text_rect.center = (current_w, current_h)
+
+                p.win.blit(text, text_rect)
+
 
 
             p.py.display.update()
+            player_group.empty()
             # try:
             #     game = n.send("get")
             # except:
