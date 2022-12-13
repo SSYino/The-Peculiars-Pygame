@@ -5,8 +5,15 @@ class Game:
         self.current_location = None
         self.current_round = 0
 
+    def __repr__(self) -> str:
+        return f"{{id: {self.id}, players: {self.players}}}"
+
     def get_data(self):
-        return vars(self)
+        new_players = []
+        for player in self.players:
+            new_players.append(player.get_data())
+        data = {} | vars(self) | {"players": new_players}
+        return data
 
     def get_game_locations(self):
         # get game locations from a json file
@@ -14,6 +21,13 @@ class Game:
 
     def add_player(self, player):
         self.players.append(player)
+        return self.players
+
+    def get_game_leader(self):
+        return self.players[0]
+
+    def get_game_id(self):
+        return self.id
 
     def get_current_location(self):
         return self.current_location
