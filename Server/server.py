@@ -50,7 +50,7 @@ class Server:
                 print("[PLAYER_THREAD]", e)
                 run = False
 
-        self.set_state(data={"command": "deletePlayer", "data": {"id": str(id)}})
+        self.set_state(data={"command": "deletePlayer", "data": player.get_data()})
         conn.close()
 
     def connection_thread(self):
@@ -106,6 +106,16 @@ class Server:
 
     def data_manager(self, state, data):
         match data["command"]:
+            case "getPlayerData":
+                try:
+                    player_id = data["data"]
+                    for player in state["players"]:
+                        if player.id == player_id:
+                            return [True, player.get_data()]
+                    raise Exception("Could not find player")
+                except:
+                    print("could not get player data")
+                    return [False, None]
             case "createPlayer":
                 try:
                     if "players" not in state:
@@ -119,19 +129,36 @@ class Server:
 
             case "deletePlayer":
                 try:
-                    player_id = data["data"]["id"]
+                    player = data["data"]
                     players = state["players"]
+                    if player["game_id"] == None:
+                        for p in players:
+                            if p.id == player["id"]:
+                                p.id = None
+                    
                     games = state["games"]
-                    for i, player in enumerate(players):
-                        if player.id == player_id:
-                            for j, game in enumerate(games):
-                                if game.id == player.game_id:
-                                    games.pop(j)
-                                    break
-                            players.pop(i)
+
+                    for i, game in enumerate(games):
+                        if game.id == player["game_id"]:
+                            games.pop(i)
                             break
+
+                    for p in players:
+                        if p.game_id != player["game_id"]:
+                            continue
+
+                        if p.id != player["id"]:
+                            p.game_id = None
+                            game_data = {"command": "gameData", "data": {"Err": "playerDisconnected"}}
+                            self.data_send(p.get_socket(), game_data)
+                        else:
+                            p.id = None
+
+                    self.set_state("players", [player for player in players if player.id != None])
+
                     return [True, None]
-                except:
+                except Exception as e:
+                    print(e)
                     print("could not delete player")
                     return [False, None]
 
