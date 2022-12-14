@@ -14,8 +14,17 @@ class GameScreen(Scene):
                 self.image = p.py.image.load("assets/images/Logo.png").convert_alpha()
                 self.image = p.py.transform.scale(self.image, (100, 100))
                 self.rect = self.image.get_rect()
+                self.rect.midleft = (15, (player_count * 175) + 75)
                 self.player_data = player_data
-                self.rect.midleft = (15, player_count * 50)
+                self.text = self.player_data["display_name"]
+
+            def update(self, win):
+                font = p.py.font.SysFont("comicsans", 25)
+                text = font.render(self.text, 1, (255, 255, 255))
+                text_rect = text.get_rect()
+
+                text_rect.midtop = (self.rect.centerx, self.rect.bottom)
+                win.blit(text, text_rect)
 
 
         player_group = p.py.sprite.Group()
@@ -26,10 +35,18 @@ class GameScreen(Scene):
 
             try:
                 game_state = m.getState("current_game")
+                if "Err" in game_state:
+                    print(game_state['Err'])
+                    m.setState({"command": "gameData", "data": None})
+
+                    player_data = m.getState("player")
+                    n.send_data({"command": "getPlayerData", "data": player_data["id"]})
+                    return {"next_scene": "menu"}
+
                 players = game_state["players"]
                 player_count = len(players)
                 for count, player_data in enumerate(players):
-                    new_player = Player(player_data, count + 1)
+                    new_player = Player(player_data, count)
                     player_group.add(new_player)
 
                 # new_players = game_state["new_players"]
@@ -44,6 +61,7 @@ class GameScreen(Scene):
                 #         old_players.append(new_players.pop(0))
 
                 player_group.draw(p.win)
+                player_group.update(p.win)
                 # print("new", new_players, "old", old_players, "player count", player_count)
                 print("players", players, "player count", player_count)
             except Exception as e:
@@ -55,7 +73,7 @@ class GameScreen(Scene):
 
                 screen_info = p.py.display.Info()
                 current_w, current_h = screen_info.current_w, screen_info.current_h
-                text_rect.center = (current_w, current_h)
+                text_rect.center = (current_w/2, current_h/2)
 
                 p.win.blit(text, text_rect)
 
