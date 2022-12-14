@@ -8,8 +8,7 @@ class JoinGameScreen(Scene):
     def start(self, p, n, m):
         self.run = True
 
-        data = {"command": "getActiveGames", "data": None}
-        n.send_data(data)
+        getActiveGames = {"command": "getActiveGames", "data": None}
 
         class Button(p.py.sprite.Sprite):
             def __init__(self, game_id, text, button_num):
@@ -47,6 +46,8 @@ class JoinGameScreen(Scene):
 
             font = p.py.font.SysFont("comicsans", 60)
             try:
+                n.send_data(getActiveGames)
+
                 active_games = m.getState("active_games")
                 text = font.render(f"ACTIVE GAMES: {active_games['count']}", 1, (255, 255, 255))
 
