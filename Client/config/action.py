@@ -32,6 +32,11 @@ class Receive:
     def setState(self, data):
         state = self.getState()
         match data["command"]:
+            case "playerData":
+                try:
+                    state["player"] = data["data"]
+                except:
+                    print("could not update player data")
             case "gameData":
                 try:
                     state["current_game"] = data["data"]
