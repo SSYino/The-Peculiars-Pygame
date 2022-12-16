@@ -3,6 +3,10 @@ class Player:
         self.id = id
         self.display_name = None
         self.game_id = None
+
+        self.location = None
+        self.role = None
+
         self._socket = socket
 
     def __repr__(self) -> str:
@@ -11,6 +15,13 @@ class Player:
     def get_data(self):
         data = {} | vars(self)
         del data["_socket"]
+        return data
+
+    def get_limited_data(self):
+        data = {} | vars(self)
+        del data["_socket"]
+        del data["location"]
+        del data["role"]
         return data
 
     def get_socket(self):
@@ -22,3 +33,9 @@ class Player:
     def set_display_name(self, name):
         self.display_name = name
         return vars(self)
+
+    def set_location(self, location_name):
+        self.location = location_name
+
+    def set_role(self, role):
+        self.role = role
