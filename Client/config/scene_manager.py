@@ -36,7 +36,11 @@ class SceneManager:
                         self.current_scene = scene
 
                         if has_pending_scene:
-                            scene.start(self.p, self.net, self.manager)
+                            should_continue = scene.start(self.p, self.net, self.manager)
+
+                            if not should_continue:
+                                self.p.RUN = False
+                                return
 
                             for scene2 in self.scenes:
                                 if scene2.get_name() == new_scene_data["pending_scene"]:

@@ -57,6 +57,7 @@ class GetUsernameScreen(Scene):
                 if event.type == p.py.QUIT:
                     self.run = False
                     p.py.quit()
+                    return False # Should not continue rendering scenes
                 if event.type == p.py.MOUSEBUTTONDOWN:
                     if confirm_button.click(event.pos):
                         print("confirmed display name")
