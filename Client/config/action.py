@@ -2,7 +2,11 @@ class Receive:
     def __init__(self, net) -> None:
         self.net = net
         self.run = False
-        self.state = {}
+        self.state = {
+            "player": None,
+            "current_game": None,
+            "active_games": None
+        }
         # State shape ::
         #     {
         #         "player": {player data},
