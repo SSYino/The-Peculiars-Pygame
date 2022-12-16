@@ -33,7 +33,7 @@ class Server:
         run = True
         while run:
             try:
-                data = self.data_get(conn, 1024)
+                data = self.data_get(conn, 1024*4)
                 print(data)
 
                 reply = manager(data, self.set_state)
@@ -95,7 +95,7 @@ class Server:
 
     def set_state(self, key=None, value=None, data=None):
         state = self.get_state()
-        if key and value:
+        if key and value != None:
             state[key] = value
             print("state", self.get_state())
             return True
@@ -135,6 +135,7 @@ class Server:
                         for p in players:
                             if p.id == player["id"]:
                                 p.id = None
+                                break
                     
                     games = state["games"]
 
@@ -147,14 +148,15 @@ class Server:
                         if p.game_id != player["game_id"]:
                             continue
 
-                        if p.id != player["id"]:
+                        if p.id != player["id"] and p.id != None:
                             p.game_id = None
                             game_data = {"command": "gameData", "data": {"Err": "playerDisconnected"}}
                             self.data_send(p.get_socket(), game_data)
                         else:
                             p.id = None
 
-                    self.set_state("players", [player for player in players if player.id != None])
+                    new_players_state = [p for p in players if p.id != None]
+                    self.set_state("players", new_players_state)
 
                     return [True, None]
                 except Exception as e:
@@ -196,7 +198,7 @@ class Server:
                     else:
                         state["games"].append(new_game)
 
-                    reply = {"player": new_player.get_data(), "game": new_game.get_data()}
+                    reply = {"player": new_player.get_data(), "game": new_game.get_data(player_id)}
                     return [True, reply]
                 except:
                     print("could not creat game")
@@ -221,8 +223,8 @@ class Server:
                     if game and player:
                         player.game_id = game_id
                         players = game.add_player(player)
-                        game_data = {"command": "gameData", "data": game.get_data()}
                         for p in players:
+                            game_data = {"command": "gameData", "data": game.get_data(p.id)}
                             if p.id != player.id:
                                 self.data_send(p.get_socket(), game_data)
                     else:
@@ -232,10 +234,26 @@ class Server:
                             print("could not find player")
                         raise Exception()
 
-                    reply = {"player": player.get_data(), "game": game.get_data()}
+                    reply = {"player": player.get_data(), "game": game.get_data(player.id)}
                     return [True, reply]
                 except:
                     print("could not join game")
+                    return [False, None]
+
+            case "startGame":
+                try:
+                    game_id = data["data"]["game_id"]
+                    game_locations = data["data"]["locations"]
+                    games = state["games"]
+                    for game in games:
+                        if game.id == game_id:
+                            players = game.start(game_locations)
+                            for p in players:
+                                game_data = {"command": "gameData", "data": game.get_data(p.id)}
+                                self.data_send(p.get_socket(), game_data)
+                            return [True, "Success"]
+                except:
+                    print("could not start game")
                     return [False, None]
 
             case "getActiveGames":
