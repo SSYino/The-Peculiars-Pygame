@@ -39,7 +39,7 @@ class Load:
         try:
             while True:
                 try:
-                    rec.append(self.client.recv(1024))
+                    rec.append(self.client.recv(1024*4))
                     data = json.loads(rec.pop().decode())
                     q_receive.put(data)
                 except Exception as e:
