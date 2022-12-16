@@ -39,36 +39,50 @@ class MenuScreen(Scene):
         while self.run:
             p.clock.tick(60)
             p.win.fill((128, 128, 128))
-            # font = pygame.font.SysFont("comicsans", 60)
 
             screen_info = p.py.display.Info()
             current_w, current_h = screen_info.current_w, screen_info.current_h
 
-            start_button = Button("Start Game", (current_w)/2, (current_h)/2 - 100, "Gray")
-            join_button = Button("Join Game", (current_w)/2,(current_h)/2 + 100, "Gray")
-            # text = font.render("Click to Play!", 1, (255,0,0))
-            # win.blit(text, (100,200))
-            # win.blit(start_button, (500,300))
-            # win.blit(join_button, (500,500))
+            try:
+                player = m.getState("player")
+                if player == None:
+                    font = p.py.font.SysFont("comicsans", 60)
+                    text = font.render("Loading...", 1 ,(255,255,255))
+                    text_rect = text.get_rect()
+                    text_rect.center = (current_w/2, current_h/2)
+                    p.win.blit(text, text_rect)
+                else:
+                    start_button = Button("Start Game", (current_w)/2, (current_h)/2 - 100, "Gray")
+                    join_button = Button("Join Game", (current_w)/2,(current_h)/2 + 100, "Gray")
+                    # text = font.render("Click to Play!", 1, (255,0,0))
+                    # win.blit(text, (100,200))
+                    # win.blit(start_button, (500,300))
+                    # win.blit(join_button, (500,500))
 
-            button_group.add([start_button, join_button])
-            button_group.draw(p.win)
-            button_group.update(p.win)
+                    button_group.add([start_button, join_button])
+                    button_group.draw(p.win)
+                    button_group.update(p.win)
 
-            p.py.display.update()
-            button_group.empty()
+                    button_group.empty()
 
-            for event in p.py.event.get():
-                if event.type == p.py.QUIT:
-                    self.run = False
-                    p.py.quit()
-                if event.type == p.py.MOUSEBUTTONDOWN:
-                    if start_button.click(event.pos):
-                        print("start game")
-                        return {"next_scene": "getUsername", "pending_scene": "createGame"}
-                    elif join_button.click(event.pos):
-                        print("join game")
-                        return {"next_scene": "getUsername", "pending_scene": "joinGame"}
+                for event in p.py.event.get():
+                    if event.type == p.py.QUIT:
+                        self.run = False
+                        p.py.quit()
+                    if event.type == p.py.MOUSEBUTTONDOWN:
+                        if start_button.click(event.pos):
+                            print("start game")
+                            return {"next_scene": "getUsername", "pending_scene": "createGame"}
+                        elif join_button.click(event.pos):
+                            print("join game")
+                            return {"next_scene": "getUsername", "pending_scene": "joinGame"}
+
+                p.py.display.update()
+                
+            except:
+                pass
+
+
 
     def stop(self):
         return super().stop()
