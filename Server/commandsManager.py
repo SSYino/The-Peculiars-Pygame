@@ -17,6 +17,9 @@ def manager(data, setState):
         case "joinGame":
             [isSuccess, reply] = setState(data=data)
             return Response(isSuccess, reply)
+        case "startGame":
+            [isSuccess, reply] = setState(data=data)
+            return Response(isSuccess, reply)
         case "getActiveGames":
             [isSuccess, reply] = setState(data=data)
             return Response(isSuccess, reply)
