@@ -249,8 +249,20 @@ class Server:
                         if game.id == game_id:
                             players = game.start(game_locations)
                             for p in players:
+                                # Update player state on server
+                                for p_state in state["players"]:
+                                    if p.id == p_state.id:
+                                        p_state.location = p.location
+                                        p_state.role = p.role
+                                        break
+
+                                # Send game and player data to client
                                 game_data = {"command": "gameData", "data": game.get_data(p.id)}
-                                self.data_send(p.get_socket(), game_data)
+                                player_data = {"command": "playerData", "data": p.get_data()}
+                                player_socket = p.get_socket()
+                                self.data_send(player_socket, game_data)
+                                self.data_send(player_socket, player_data)
+                                print("sent data to", p.id)
                             return [True, "Success"]
                 except:
                     print("could not start game")
