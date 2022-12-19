@@ -40,13 +40,22 @@ class JoinGameScreen(Scene):
 
         button_group = p.py.sprite.Group()
 
+        last_data_fetch = None
+        data_fetch_cooldown = 1000 # Cooldown to fetch active games from the server (in ms)
+
         while self.run:
             p.clock.tick(60)
             p.win.fill((128, 128, 128))
 
             font = p.py.font.SysFont("comicsans", 60)
             try:
-                n.send_data(getActiveGames)
+                if last_data_fetch == None:
+                    n.send_data(getActiveGames)
+                else:
+                    now = p.py.time.get_ticks()
+                    if now - data_fetch_cooldown >= last_data_fetch:
+                        n.send_data(getActiveGames)
+                        last_data_fetch = now
 
                 active_games = m.getState("active_games")
                 text = font.render(f"ACTIVE GAMES: {active_games['count']}", 1, (255, 255, 255))
