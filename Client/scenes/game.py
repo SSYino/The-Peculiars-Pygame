@@ -12,7 +12,8 @@ class GameScreen(Scene):
         class Player(p.py.sprite.Sprite):
             def __init__(self, player_data, player_count, is_me) -> None:
                 super().__init__()
-                if is_me:
+                self.is_me = is_me
+                if self.is_me:
                     self.image = p.py.image.load("assets/images/Logo Yellow.png").convert_alpha()
                 else:
                     self.image = p.py.image.load("assets/images/Logo.png").convert_alpha()
@@ -21,6 +22,7 @@ class GameScreen(Scene):
                 self.rect.midleft = (15, (player_count * 175) + 75)
                 self.player_data = player_data
                 self.text = self.player_data["display_name"]
+                self.border_on = False
 
             def update(self, win):
                 font = p.py.font.SysFont("comicsans", 25)
@@ -29,6 +31,35 @@ class GameScreen(Scene):
 
                 text_rect.midtop = (self.rect.centerx, self.rect.bottom)
                 win.blit(text, text_rect)
+
+                if self.border_on:
+                    margin = 3
+                    p.py.draw.rect(win, "black", (self.rect.left-margin, self.rect.top-margin, self.rect.width+(margin*2), self.rect.height+(margin*2)), 2)
+
+            def is_click(self, pos):
+                return self.rect.collidepoint(pos)
+
+            def toggle_border(self, on=None):
+                if self.is_me:
+                    return
+
+                if on == False:
+                    self.border_on = on
+                    return
+
+                if on == None and self.border_on:
+                    self.border_on = not self.border_on
+                    return 
+
+                # Update self border
+                self.border_on = not self.border_on
+
+                # Update borders of other sprites
+                for player in player_group.sprites():
+                    if player.player_data["id"] != self.player_data["id"]:
+                        player.toggle_border(False)
+                
+
 
         class Location(p.py.sprite.Sprite):
             def __init__(self, location_name, location_num, screen_width, roles) -> None:
@@ -43,13 +74,24 @@ class GameScreen(Scene):
                 self.img_width = self.img_height * 1.77765
                 self.image = p.py.transform.scale(self.image, (self.img_width, self.img_height))
                 self.rect = self.image.get_rect()
+                self.border_on = False
 
+                self.calc_size(screen_width)
+
+            def update(self, win, screen_width):
+                self.calc_size(screen_width)
+
+                if self.border_on:
+                    margin = 3
+                    p.py.draw.rect(win, "red", (self.rect.left-margin, self.rect.top-margin, self.rect.width+(margin*2), self.rect.height+(margin*2)), 2)
+
+            def calc_size(self, screen_w):
                 self.startx = 128
                 self.locations_per_row = 5
-                self.distance_between = ((screen_width - self.startx) / self.locations_per_row) - self.img_width
+                self.distance_between = ((screen_w - self.startx) / self.locations_per_row) - self.img_width
                 self.basex = self.startx + (self.distance_between / 2)
-                self.basey = 50
-                self.row = floor(location_num / (self.locations_per_row - 0))       # Starts at row 0
+                self.basey = 100
+                self.row = floor(self.num / (self.locations_per_row - 0))       # Starts at row 0
                 self.column = self.num - ((self.locations_per_row - 0) * self.row)  # Starts at column 0
 
                 self.x = ((self.img_width + self.distance_between) * self.column) + self.basex
@@ -61,6 +103,28 @@ class GameScreen(Scene):
                 self.text_rect = text.get_rect()
                 self.text_rect.midtop = (self.rect.centerx, self.rect.bottom)
                 p.win.blit(text, self.text_rect)
+
+            def is_click(self, pos):
+                return self.rect.collidepoint(pos)
+
+            def toggle_border(self, on=None):
+                if on == False:
+                    self.border_on = on
+                    return
+
+                if on == None and self.border_on:
+                    self.border_on = not self.border_on
+                    return 
+
+                # Update self border
+                self.border_on = not self.border_on
+
+                # Update borders of other sprites
+                for location in location_group.sprites():
+                    if location.num != self.num:
+                        location.toggle_border(False)
+                
+
 
         class Button(p.py.sprite.Sprite):
             def __init__(self, text, x, y, color):
@@ -83,12 +147,20 @@ class GameScreen(Scene):
                 text_rect.center = self.rect.center
                 win.blit(text, text_rect)
 
-            def click(self, pos):
+            def is_click(self, pos):
                 return self.rect.collidepoint(pos)
+               
 
         player_group = p.py.sprite.Group()
         location_group = p.py.sprite.Group()
         button_group = p.py.sprite.Group()
+
+        for location_num, location in enumerate(LOCATIONS):
+                        location_name = location["name"]
+                        location_roles = location["roles"]
+                        screen_width = p.py.display.Info().current_w
+                        new_location = Location(location_name, location_num, screen_width, location_roles)
+                        location_group.add(new_location)
 
         while self.run:
             p.clock.tick(60)
@@ -111,8 +183,15 @@ class GameScreen(Scene):
                 players = game_state["players"]
                 player_count = len(players)
                 for count, player_data in enumerate(players):
-                    new_player = Player(player_data, count, me["id"] == player_data["id"])
-                    player_group.add(new_player)
+                    is_player_in_group = False
+                    for group_player in player_group:
+                        if group_player.player_data["id"] == player_data["id"]:
+                            is_player_in_group = True
+                            break
+
+                    if not is_player_in_group:
+                        new_player = Player(player_data, count, me["id"] == player_data["id"])
+                        player_group.add(new_player)
 
                 # Vertical bar
                 p.py.draw.rect(p.win, "black", (125, 0, 3, current_h))
@@ -128,13 +207,33 @@ class GameScreen(Scene):
                     p.win.blit(text, text_rect)
 
                 else: # Game has started
+                    # Display location and role
+                    current_location = me["location"]
+                    current_role = me["role"]
 
-                    # Locations
-                    for location_num, location in enumerate(LOCATIONS):
-                        location_name = location["name"]
-                        location_roles = location["roles"]
-                        new_location = Location(location_name, location_num, current_w, location_roles)
-                        location_group.add(new_location)
+                    if not (current_location and current_role):
+                        raise Exception("No role or location data")
+
+                    font = p.py.font.SysFont("comicsans", 30)
+                    text_location = font.render(f"Current Location: {current_location}", 1, (255, 255, 255))
+                    text_role = font.render(f"You are a/an {current_role}", 1, (255, 255, 255))
+                    text_location_rect = text_location.get_rect()
+                    text_role_rect = text_role.get_rect()
+
+                    text_location_rect.topleft = (135, 10)
+                    text_role_rect.topleft = (135, 10 + text_location_rect.height)
+
+                    p.win.blit(text_location, text_location_rect)
+                    p.win.blit(text_role, text_role_rect)
+
+                    if current_role == "spy": # Is a spy
+                        pass
+                    else: # Not a spy
+                        pass
+
+                    # Draw locations 
+                    location_group.draw(p.win)
+                    location_group.update(p.win, current_w)
 
                 # Buttons
                 game_leader = players[0]
@@ -154,7 +253,6 @@ class GameScreen(Scene):
                 player_group.update(p.win)
                 button_group.draw(p.win)
                 button_group.update(p.win)
-                location_group.draw(p.win)
 
                 # print("players", players, "player count", player_count)
             except Exception as e:
@@ -169,9 +267,7 @@ class GameScreen(Scene):
                 p.win.blit(text, text_rect)
 
             p.py.display.update()
-            player_group.empty()
-            button_group.empty()
-            location_group.empty()
+            
             # try:
             #     game = n.send("get")
             # except:
@@ -206,9 +302,28 @@ class GameScreen(Scene):
                     self.run = False
                     p.py.quit()
                 if event.type == p.py.MOUSEBUTTONDOWN:
-                    if start_button.click(event.pos):
-                        data = {"command": "startGame", "data": {"game_id": game_state["id"], "locations": LOCATIONS}}
-                        n.send_data(data)
+                    for button in button_group.sprites():
+                        is_clicked = button.is_click(event.pos)
+                        if is_clicked:
+                            data = {"command": "startGame", "data": {"game_id": game_state["id"], "locations": LOCATIONS}}
+                            n.send_data(data)
+                            break
+
+                    for player in player_group.sprites():
+                        is_clicked = player.is_click(event.pos)
+                        if is_clicked:
+                            player.toggle_border()
+                            break
+
+                    for location in location_group.sprites():
+                        is_clicked = location.is_click(event.pos)
+                        if is_clicked:
+                            location.toggle_border()
+                            break
+
+            # player_group.empty()
+            # location_group.empty()
+            button_group.empty()
 
 
     def stop(self):
