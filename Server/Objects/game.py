@@ -44,6 +44,8 @@ class Game:
             else:
                 new_players.append(player.get_limited_data())
         data = {} | vars(self) | {"players": new_players}
+        del data["current_location"]
+        
         return data
 
     def get_game_locations(self):
