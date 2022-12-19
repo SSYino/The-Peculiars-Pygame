@@ -1,4 +1,3 @@
-import sys
 import threading
 import network
 from config import action, load_pygame
