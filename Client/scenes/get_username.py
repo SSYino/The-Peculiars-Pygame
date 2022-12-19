@@ -66,10 +66,12 @@ class GetUsernameScreen(Scene):
                     if confirm_button.click(event.pos):
                         print("confirmed display name")
 
-                        # Update user display name in Player instance
-                        # player["display_name"] = textinput.value
-                        data = {"command": "setDisplayName", "data": {"player_id": m.getState("player")["id"], "value": textinput.value}}
+                        name = textinput.value
+                        data = {"command": "setDisplayName", "data": {"player_id": m.getState("player")["id"], "value": name}}
                         n.send_data(data)
+
+                        with open("data.txt", "w") as file:
+                            file.write(f"name={name}")
 
                         # reply = n.send(data)
                         # if not reply:

@@ -1,7 +1,8 @@
 class Receive:
-    def __init__(self, net) -> None:
+    def __init__(self, net, init_data=None) -> None:
         self.net = net
         self.run = False
+        self.init_data = init_data
         self.state = {
             "player": None,
             "current_game": None,
