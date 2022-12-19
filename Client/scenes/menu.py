@@ -36,6 +36,8 @@ class MenuScreen(Scene):
 
         button_group = p.py.sprite.Group()
 
+        sent_display_name = False
+
         while self.run:
             p.clock.tick(60)
             p.win.fill((128, 128, 128))
@@ -52,12 +54,14 @@ class MenuScreen(Scene):
                     text_rect.center = (current_w/2, current_h/2)
                     p.win.blit(text, text_rect)
                 else:
+                    if m.init_data and player["display_name"] == None:
+                        if not sent_display_name:
+                            data = {"command": "setDisplayName", "data": {"player_id": player["id"], "value": m.init_data}}
+                            n.send_data(data)
+                            sent_display_name = True
+
                     start_button = Button("Start Game", (current_w)/2, (current_h)/2 - 100, "Gray")
                     join_button = Button("Join Game", (current_w)/2,(current_h)/2 + 100, "Gray")
-                    # text = font.render("Click to Play!", 1, (255,0,0))
-                    # win.blit(text, (100,200))
-                    # win.blit(start_button, (500,300))
-                    # win.blit(join_button, (500,500))
 
                     button_group.add([start_button, join_button])
                     button_group.draw(p.win)
@@ -72,10 +76,16 @@ class MenuScreen(Scene):
                     if event.type == p.py.MOUSEBUTTONDOWN:
                         if start_button.click(event.pos):
                             print("start game")
-                            return {"next_scene": "getUsername", "pending_scene": "createGame"}
+                            if player["display_name"] == None:
+                                return {"next_scene": "getUsername", "pending_scene": "createGame"}
+                            else:
+                                return {"next_scene": "createGame"}
                         elif join_button.click(event.pos):
                             print("join game")
-                            return {"next_scene": "getUsername", "pending_scene": "joinGame"}
+                            if player["display_name"] == None:
+                                return {"next_scene": "getUsername", "pending_scene": "joinGame"}
+                            else:
+                                return {"next_scene": "joinGame"}
 
                 p.py.display.update()
                 
