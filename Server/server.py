@@ -11,12 +11,6 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
 class Server:
-    # def __init__(self):
-    # self.lobby = Lobby()
-    # self.gamerooms = GameRooms(self.lobby)
-    # self.keypass = KeyPass()
-    # self.database = Database()
-    # self.database.create()
     def __init__(self) -> None:
         self.state = {"id_count": 0, "game_id_count": 0, "players": [], "games": []}
 
@@ -37,13 +31,6 @@ class Server:
                 print(data)
 
                 reply = manager(data, self.set_state)
-                # if player != None:
-                #     self.keypass.start(self, data, conn, player)
-                # else:
-                #     v = self.database.account(data, conn, addr)
-                #     if v[0]:
-                #         player = Player(v[3][0], v[3][1], v[3][3], v[3][4], v[3][5], conn, addr)
-
                 self.data_send(conn, reply)
 
             except Exception as e:
@@ -288,19 +275,6 @@ class Server:
             case _:
                 print("Unknown command")
                 return [False, None]
-
-    # def on_login(self, player):
-    #     if player:
-    #         self.lobby.add(player)
-    #         on_login(player, self.lobby, self.gamerooms)
-    #         print(f"{self.time()} [CONNECTED][{player.name}]{player.addr} ")
-
-    # def on_logout(self, player):
-    #     if player:
-    #         self.gamerooms.disconnected(player)
-    #         self.lobby.disconnected(player)
-    #         on_logout(player, self.lobby, self.gamerooms)
-    #         print(f"{self.time()} [DISCONNECTED][{player.name}]{player.addr} ")
 
 
 if __name__ == "__main__":
