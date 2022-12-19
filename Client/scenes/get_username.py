@@ -18,8 +18,7 @@ class GetUsernameScreen(Scene):
                 self.height = 100
 
             def draw(self, win):
-                p.py.draw.rect(
-                    win, self.color, (self.x, self.y, self.width, self.height))
+                p.py.draw.rect(win, self.color, (self.x, self.y, self.width, self.height))
                 font = p.py.font.SysFont("comicsans", 40)
                 text = font.render(self.text, 1, (255, 255, 255))
                 win.blit(text, (self.x, self.y))
@@ -40,14 +39,19 @@ class GetUsernameScreen(Scene):
             p.win.fill((128, 128, 128))
             font = p.py.font.SysFont("comicsans", 60)
 
-            text = font.render("Enter your display name", 1, (255,0,0))
-            p.win.blit(text, (500,200))
+            screen_info = p.py.display.Info()
+            current_w, current_h = screen_info.current_w, screen_info.current_h
+
+            text = font.render("Enter your display name", 1, (255,255,255))
+            text_rect = text.get_rect()
+            text_rect.center = (current_w/2, (current_h/2) - 100)
+            p.win.blit(text, text_rect)
 
             events = p.py.event.get()
             textinput.update(events)
-            p.win.blit(textinput.surface, (500, 300))
+            p.win.blit(textinput.surface, ((current_w/2) - 200, (current_h/2) - 50))
 
-            confirm_button = Button("Confirm", 700, 400, "Gray")
+            confirm_button = Button("Confirm", (current_w/2) - 125, (current_h/2) + 50, "Gray")
             confirm_button.draw(p.win)
 
             p.py.display.update()
