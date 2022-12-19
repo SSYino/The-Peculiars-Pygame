@@ -8,8 +8,8 @@ class Load:
         self.py = pygame
         self.py.init()
         self.py.display.set_caption('The Peculiars')
-        # self.programIcon = self.p.image.load('assets/icon.png')
-        # self.p.display.set_icon(self.programIcon)
+        self.programIcon = self.py.image.load('assets/images/Logo.png')
+        self.py.display.set_icon(self.programIcon)
 
         # self.p.event.set_allowed([self.p.KEYDOWN, self.p.KEYUP, self.p.QUIT])
 
