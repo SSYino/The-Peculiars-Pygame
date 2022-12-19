@@ -254,7 +254,6 @@ class GameScreen(Scene):
                 button_group.draw(p.win)
                 button_group.update(p.win)
 
-                # print("players", players, "player count", player_count)
             except Exception as e:
                 print(f"error {e}")
                 print("no players received yet")
@@ -268,35 +267,6 @@ class GameScreen(Scene):
 
             p.py.display.update()
             
-            # try:
-            #     game = n.send("get")
-            # except:
-            #     run = False
-            #     print("Couldn't get game")
-            #     break
-
-            # if game.bothWent():
-            #     redrawWindow(win, game, player)
-            #     pygame.time.delay(500)
-            #     try:
-            #         game = n.send("reset")
-            #     except:
-            #         run = False
-            #         print("Couldn't get game")
-            #         break
-
-            # font = pygame.font.SysFont("comicsans", 90)
-            # if (game.winner() == 1 and player == 1) or (game.winner() == 0 and player == 0):
-            #     text = font.render("You Won!", 1, (255,0,0))
-            # elif game.winner() == -1:
-            #     text = font.render("Tie Game!", 1, (255,0,0))
-            # else:
-            #     text = font.render("You Lost...", 1, (255, 0, 0))
-
-            # win.blit(text, (width/2 - text.get_width()/2, height/2 - text.get_height()/2))
-            # pygame.display.update()
-            # pygame.time.delay(2000)
-
             for event in p.py.event.get():
                 if event.type == p.py.QUIT:
                     self.run = False
@@ -321,8 +291,6 @@ class GameScreen(Scene):
                             location.toggle_border()
                             break
 
-            # player_group.empty()
-            # location_group.empty()
             button_group.empty()
 
 

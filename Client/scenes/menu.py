@@ -28,8 +28,6 @@ class MenuScreen(Scene):
 
                 text_rect.center = self.rect.center
                 win.blit(text, text_rect)
-                # win.blit(text, self.rect.midleft)
-                # win.blit(text, (self.x + round(self.width/2) - round(text.get_width()/2), self.y + round(self.height/2) - round(text.get_height()/2)))
 
             def click(self, pos):
                 return self.rect.collidepoint(pos)

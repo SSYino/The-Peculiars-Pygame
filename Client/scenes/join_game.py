@@ -32,8 +32,6 @@ class JoinGameScreen(Scene):
 
                 text_rect.midtop = (self.rect.centerx, self.rect.bottom)
                 win.blit(text, text_rect)
-                # win.blit(text, self.rect.midleft)
-                # win.blit(text, (self.x + round(self.width/2) - round(text.get_width()/2), self.y + round(self.height/2) - round(text.get_height()/2)))
 
             def click(self, pos):
                 return self.rect.collidepoint(pos)
@@ -73,14 +71,6 @@ class JoinGameScreen(Scene):
                 text = font.render("Loading active games...", 1, (255, 255, 255))
 
             p.win.blit(text, (75, 50))
-
-            # screen_info = p.py.display.Info()
-            # current_w, current_h = screen_info.current_w, screen_info.current_h
-
-            # start_button = Button("Start Game", (current_w)/2, (current_h)/2 - 100, "Gray")
-            # join_button = Button("Join Game", (current_w)/2,(current_h)/2 + 100, "Gray")
-            # win.blit(start_button, (500,300))
-            # win.blit(join_button, (500,500))
 
             p.py.display.update()
 

@@ -22,7 +22,6 @@ class GetUsernameScreen(Scene):
                 font = p.py.font.SysFont("comicsans", 40)
                 text = font.render(self.text, 1, (255, 255, 255))
                 win.blit(text, (self.x, self.y))
-                # win.blit(text, (self.x + round(self.width/2) - round(text.get_width()/2), self.y + round(self.height/2) - round(text.get_height()/2)))
 
             def click(self, pos):
                 x1 = pos[0]
@@ -57,7 +56,6 @@ class GetUsernameScreen(Scene):
             p.py.display.update()
 
             for event in events:
-                # print(event)
                 if event.type == p.py.QUIT:
                     self.run = False
                     p.py.quit()
@@ -73,15 +71,8 @@ class GetUsernameScreen(Scene):
                         with open("data.txt", "w") as file:
                             file.write(f"name={name}")
 
-                        # reply = n.send(data)
-                        # if not reply:
-                        #     run = False
-                        #     print("Could not send 'set_display_name'")
-                        #     break
-
                         self.run = False
                         return {"next_scene": "menu"}
-                        # create_game_screen()
 
 
     def stop(self):

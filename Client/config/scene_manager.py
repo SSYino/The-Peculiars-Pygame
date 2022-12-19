@@ -22,7 +22,6 @@ class SceneManager:
 
             while True:
                 if not new_scene_data:
-                    # print("no new scene data", new_scene_data)
                     self.p.RUN = False
                     break
 

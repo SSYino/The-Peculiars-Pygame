@@ -57,10 +57,6 @@ class Receive:
                     print("could not set display name")
             case "createGame":
                 try:
-                    # if "current_game" in state and state["current_game"] is not None:
-                    #     pass
-                    # else:
-
                     # Update player data
                     new_player_data = data["data"]["player"]
                     state["player"] = new_player_data
@@ -69,11 +65,6 @@ class Receive:
                     game_data = data["data"]["game"]
                     state["current_game"] = game_data
 
-                    # game_dict = data["data"]["game"]
-                    # new_players = game_dict.pop("players")
-                    
-                    # players_dict = {"old_players": [], "new_players": new_players, "player_count": 0}
-                    # state["current_game"] = players_dict | game_dict
                 except:
                     print("could not create game")
             case "joinGame":
@@ -99,8 +90,3 @@ class Receive:
 
     def end(self):
         self.run = False
-
-
-# def receive(p, net):
-#     if net.q_RECEIVE:
-#         print("in action.receive", net.q_RECEIVE)

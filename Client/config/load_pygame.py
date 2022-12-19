@@ -1,4 +1,3 @@
-print("+ = "+__name__)
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
@@ -38,6 +37,3 @@ class Load:
         self.COMICSAN =     self.py.font.SysFont('Comic Sans MS', self.FONT_SIZE)
         # self.JETMONO =      self.p.font.Font('assets/fonts/jetMono.ttf', self.FONT_SIZE)
         # self.ARCADE =       self.p.font.Font('assets/fonts/arcade.ttf', self.FONT_SIZE)
-
-
-print("- = "+__name__)
